@@ -1,3 +1,5 @@
+import pytest
+
 from docmind.pii.redactor import find_pii, redact
 
 SAMPLE = (
@@ -17,16 +19,36 @@ def test_redacts_iban_email_and_phone() -> None:
     assert result.total == 3
 
 
+@pytest.mark.parametrize(
+    ("lang", "text", "name"),
+    [
+        ("de", "Der Versicherungsnehmer Hans Muster meldete den Schaden.", "Hans Muster"),
+        ("fr", "L'assuré Jean Dupont a déclaré le sinistre.", "Jean Dupont"),
+        ("en", "The policyholder John Smith reported the claim.", "John Smith"),
+    ],
+)
+def test_redacts_person_names(lang: str, text: str, name: str) -> None:
+    result = redact(text, lang=lang)
+    assert name not in result.text
+    assert "<PERSON>" in result.text
+    assert result.counts["PERSON"] == 1
+
+
+def test_unknown_language_falls_back_and_still_works() -> None:
+    result = redact("Contact John Smith at john@example.com", lang=None)
+    assert result.counts == {"PERSON": 1, "EMAIL": 1}
+
+
 def test_non_pii_text_is_untouched() -> None:
     text = "Die Versicherung deckt Schäden bis CHF 100'000 pro Ereignis (Art. 5 Abs. 2)."
-    result = redact(text)
+    result = redact(text, lang="de")
     assert result.text == text
     assert result.counts == {}
 
 
 def test_empty_text() -> None:
     assert redact("").text == ""
-    assert redact("").total == 0
+    assert redact("   ").total == 0
 
 
 def test_multiple_ibans_are_all_replaced() -> None:
