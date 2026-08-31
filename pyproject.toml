@@ -15,6 +15,7 @@ dependencies = [
     "pydantic-settings>=2.3",
     "pymupdf>=1.24",
     "sqlalchemy>=2.0",
+    "xx-ent-wiki-sm",
 ]
 
 [dependency-groups]
@@ -40,3 +41,6 @@ select = ["E", "W", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.uv.sources]
+xx-ent-wiki-sm = { url = "https://github.com/explosion/spacy-models/releases/download/xx_ent_wiki_sm-3.8.0/xx_ent_wiki_sm-3.8.0-py3-none-any.whl" }
