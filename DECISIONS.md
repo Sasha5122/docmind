@@ -9,3 +9,4 @@
 | 2026-08-31 | `pgvector/pgvector:pg16` Docker image for the database | Official Postgres 16 with the extension already compiled; one `docker compose up` and vector search works |
 | 2026-08-31 | All configuration through one `pydantic-settings` `Settings` class (`docmind/config.py`) | Typed, validated (`LLM_BACKEND=openai` fails fast), documented in one place; no scattered `os.environ` reads |
 | 2026-08-31 | `postgresql+psycopg://` (psycopg 3) driver | Modern, async-capable, maintained; psycopg2 is legacy |
+| 2026-08-31 | SQLAlchemy 2 + Alembic for tables and migrations; `pgvector` Python package for the `Vector` column type | Tables as typed Python classes; migrations replay the same schema steps on laptop, CI and cloud so they never drift |

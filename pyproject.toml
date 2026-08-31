@@ -5,8 +5,12 @@ description = "Underwriting & compliance document assistant: multilingual RAG wi
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.13",
+    "pgvector>=0.3",
+    "psycopg[binary]>=3.1",
     "pydantic>=2.7",
     "pydantic-settings>=2.3",
+    "sqlalchemy>=2.0",
 ]
 
 [dependency-groups]
