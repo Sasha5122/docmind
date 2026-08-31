@@ -10,3 +10,4 @@
 | 2026-08-31 | All configuration through one `pydantic-settings` `Settings` class (`docmind/config.py`) | Typed, validated (`LLM_BACKEND=openai` fails fast), documented in one place; no scattered `os.environ` reads |
 | 2026-08-31 | `postgresql+psycopg://` (psycopg 3) driver | Modern, async-capable, maintained; psycopg2 is legacy |
 | 2026-08-31 | SQLAlchemy 2 + Alembic for tables and migrations; `pgvector` Python package for the `Vector` column type | Tables as typed Python classes; migrations replay the same schema steps on laptop, CI and cloud so they never drift |
+| 2026-08-31 | `pymupdf` for PDF text extraction; `langdetect` for per-document language | pymupdf is fast, keeps reading order and page numbers, no system deps; langdetect is tiny and good enough for de/fr/en/it at document level |
