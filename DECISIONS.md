@@ -11,3 +11,4 @@
 | 2026-08-31 | `postgresql+psycopg://` (psycopg 3) driver | Modern, async-capable, maintained; psycopg2 is legacy |
 | 2026-08-31 | SQLAlchemy 2 + Alembic for tables and migrations; `pgvector` Python package for the `Vector` column type | Tables as typed Python classes; migrations replay the same schema steps on laptop, CI and cloud so they never drift |
 | 2026-08-31 | `pymupdf` for PDF text extraction; `langdetect` for per-document language | pymupdf is fast, keeps reading order and page numbers, no system deps; langdetect is tiny and good enough for de/fr/en/it at document level |
+| 2026-08-31 | Microsoft Presidio for PII; start with pattern recognizers only (IBAN, email, phone), add spaCy-based name detection as a separate step | Pattern rules need no model download and are deterministic; name detection needs ~500 MB models per language and deserves its own evaluation |
