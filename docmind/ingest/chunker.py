@@ -1,25 +1,18 @@
 """Cut a parsed document into chunks of ~300-800 tokens that remember their page.
 
->>> HAND-WRITTEN BY THE USER (learning mode). Claude provides the contract,
->>> helpers and tests; the body of `chunk_document` is yours. <<<
-
 Why chunk at all: one embedding = one "meaning". A whole PDF is too much
 meaning for one vector; one sentence has too little context. Chunks of a few
 hundred tokens with a small overlap are the standard compromise.
 
-Suggested algorithm (paragraph-aware, then overlap):
-  1. For each page, split the text into paragraphs (see `split_paragraphs`).
-     Skip pages with no text.
-  2. Walk the paragraphs in order and keep a "current chunk" (list of paragraphs).
-     If adding the next paragraph would push the chunk over `max_tokens`,
-     emit the current chunk first.
-  3. A single paragraph longer than `max_tokens` must itself be split
-     (e.g. by sentences or words) so no chunk ever exceeds the limit.
-  4. Overlap: when you start a new chunk, seed it with the last
-     ~`overlap_tokens` tokens of text from the previous chunk (take the last
-     few words until `count_tokens` says you have enough). Overlap 0 = none.
-  5. `page` of a chunk = the page where its FIRST original paragraph came from.
-     `chunk_index` counts 0, 1, 2 ... across the whole document.
+Algorithm (paragraph-aware, then overlap):
+  1. For each page, split the text into paragraphs; skip pages with no text.
+  2. Walk the paragraphs in order, packing them into the current chunk until the
+     next one would push it over `max_tokens`; then emit and start a new chunk.
+  3. A paragraph longer than the limit is split by words into smaller pieces.
+  4. Each new chunk starts with the last ~`overlap_tokens` tokens of the previous
+     one, so a sentence cut at a boundary is whole in at least one chunk.
+  5. `page` = page of the chunk's first ORIGINAL paragraph (not the overlap).
+     Chunks may run across a page boundary; they cite the page they start on.
 """
 
 import re
@@ -64,4 +57,83 @@ def chunk_document(
       - with overlap_tokens > 0, consecutive chunks share text; with 0 they do not
       - a document with no text returns []
     """
-    raise NotImplementedError("your turn: see the module docstring for the plan")
+    if max_tokens <= 0:
+        raise ValueError("max_tokens must be positive")
+    if not 0 <= overlap_tokens < max_tokens:
+        raise ValueError("overlap_tokens must be >= 0 and smaller than max_tokens")
+
+    # Pieces are (page, text) pairs; each piece already fits into one chunk.
+    piece_limit = max_tokens - overlap_tokens if overlap_tokens else max_tokens
+    pieces = [
+        (page.number, piece)
+        for page in doc.pages
+        for paragraph in split_paragraphs(page.text)
+        for piece in _split_long_paragraph(paragraph, piece_limit)
+    ]
+
+    chunks: list[TextChunk] = []
+    current: list[str] = []  # texts in the chunk being built (may start with an overlap tail)
+    has_content = False  # True once `current` holds at least one original piece
+    start_page = 0
+
+    def emit() -> None:
+        nonlocal current, has_content
+        text = "\n\n".join(current)
+        chunks.append(
+            TextChunk(
+                chunk_index=len(chunks),
+                page=start_page,
+                text=text,
+                token_count=count_tokens(text),
+            )
+        )
+        tail = _tail(text, overlap_tokens)
+        current = [tail] if tail else []
+        has_content = False
+
+    for page, piece in pieces:
+        candidate = "\n\n".join([*current, piece])
+        if count_tokens(candidate) > max_tokens:
+            if has_content:
+                emit()
+                candidate = "\n\n".join([*current, piece])
+            if count_tokens(candidate) > max_tokens:
+                # Only the overlap tail is in the way; drop it rather than exceed the limit.
+                current = []
+        if not has_content:
+            start_page = page
+            has_content = True
+        current.append(piece)
+
+    if has_content:
+        emit()
+    return chunks
+
+
+def _split_long_paragraph(paragraph: str, limit: int) -> list[str]:
+    """Return [paragraph] if it fits, else word-packed pieces that each fit."""
+    if count_tokens(paragraph) <= limit:
+        return [paragraph]
+    pieces: list[str] = []
+    words: list[str] = []
+    for word in paragraph.split():
+        if words and count_tokens(" ".join([*words, word])) > limit:
+            pieces.append(" ".join(words))
+            words = []
+        words.append(word)
+    if words:
+        pieces.append(" ".join(words))
+    return pieces
+
+
+def _tail(text: str, overlap_tokens: int) -> str:
+    """The last ~overlap_tokens tokens of `text`, cut on word boundaries."""
+    if overlap_tokens <= 0:
+        return ""
+    words = text.split()
+    tail: list[str] = []
+    for word in reversed(words):
+        tail.insert(0, word)
+        if count_tokens(" ".join(tail)) >= overlap_tokens:
+            break
+    return " ".join(tail)
