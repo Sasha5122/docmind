@@ -69,7 +69,7 @@ A web service where an underwriter or compliance officer uploads or selects regu
 ## Working rules for Claude Code (important — read before acting)
 - **Explain before building.** For each milestone, first write a short plan (files, functions, data flow) and wait for the user's OK.
 - **Explain like the user is new to this.** Use simple, everyday language. Every technical term (e.g. "container", "migration", "embedding", "lockfile") gets a short plain-English explanation the first time it appears in a message. For every choice, say *why this and not the alternative* in one or two sentences. Build in small chunks; explain each chunk right after building it.
-- **Learning mode is on.** The user is closing a hands-on-coding gap. The following modules are **HAND-WRITTEN BY THE USER**: `chunker.py`, `hybrid_retrieval.py` (merging BM25 + vector scores), and the `recall_at_k` function in the eval harness. For these: explain the approach, give the function signature and tests, then STOP and let the user write the body. Review their code afterwards; do not rewrite it unless asked.
+- **Claude writes all the code.** (Changed 2026-08-31: the user does not want to hand-write modules.) Learning happens through the explanations: for `chunker.py`, `hybrid_retrieval.py` and `recall_at_k` especially, walk through the algorithm step by step in plain words after building it, because these are the interview-question modules.
 - After any non-trivial change, run the tests and the 20-question smoke eval; report the numbers.
 - Never commit secrets; use `.env` + `.env.example`. Never commit `data/raw/`.
 - Record every architectural decision in `DECISIONS.md` (one line each: date, decision, why).
