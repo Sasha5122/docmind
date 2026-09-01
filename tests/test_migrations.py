@@ -39,6 +39,10 @@ def test_vector_extension_is_enabled(migrated_db) -> None:
 
 
 def test_downgrade_then_upgrade_round_trips(migrated_db) -> None:
+    with migrated_db.connect() as conn:
+        n_docs = conn.execute(text("select count(*) from documents")).scalar()
+    if n_docs:
+        pytest.skip(f"database holds {n_docs} ingested documents; downgrade would delete them")
     cfg = Config("alembic.ini")
     command.downgrade(cfg, "base")
     assert "chunks" not in inspect(migrated_db).get_table_names()

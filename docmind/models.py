@@ -7,12 +7,30 @@ multilingual embedding model `BAAI/bge-m3` chosen in CLAUDE.md.
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy import (
+    Computed,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from docmind.db import Base
 
 EMBEDDING_DIM = 1024
+
+# Full-text "bag of stemmed words", built by Postgres with the stemmer for the chunk's language.
+# Keep in sync with migrations/versions/7c2e1a9b4d10_*.py.
+TSV_SQL = (
+    "to_tsvector(CASE lang WHEN 'de' THEN 'german'::regconfig "
+    "WHEN 'fr' THEN 'french'::regconfig WHEN 'it' THEN 'italian'::regconfig "
+    "ELSE 'english'::regconfig END, text)"
+)
 
 
 class Document(Base):
@@ -48,6 +66,7 @@ class Chunk(Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     token_count: Mapped[int] = mapped_column(Integer, nullable=False)
     embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIM))
+    tsv = mapped_column(TSVECTOR, Computed(TSV_SQL, persisted=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
