@@ -28,6 +28,7 @@ class ParsedDocument:
     sha256: str
     lang: str | None
     pages: list[Page]
+    title: str | None = None  # from the PDF metadata, often empty
 
     @property
     def page_count(self) -> int:
@@ -59,10 +60,12 @@ def parse_pdf(path: Path) -> ParsedDocument:
     """Read every page of a PDF; raises FileNotFoundError / pymupdf errors on bad input."""
     with pymupdf.open(path) as doc:
         pages = [Page(number=i + 1, text=page.get_text("text")) for i, page in enumerate(doc)]
+        title = (doc.metadata or {}).get("title") or None
     full_text = "\n".join(p.text for p in pages)
     return ParsedDocument(
         filename=path.name,
         sha256=sha256_of(path),
         lang=detect_language(full_text),
         pages=pages,
+        title=title.strip()[:500] if title else None,
     )

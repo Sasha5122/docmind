@@ -42,6 +42,9 @@ target-version = "py312"
 # E/W = pycodestyle, F = pyflakes, I = import sorting, UP = modern syntax, B = common bugs
 select = ["E", "W", "F", "I", "UP", "B"]
 
+[tool.ruff.lint.per-file-ignores]
+"scripts/download_corpus.py" = ["E501"]  # one URL per line is more readable than wrapped URLs
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
