@@ -164,6 +164,7 @@ the evidence really appears on the cited page.
 |---|---|---|
 | **recall@5 / @10** | Was the right page among the first 5 / 10 chunks retrieved? If not, no model can answer correctly. | no |
 | **MRR** | How high up was the first correct chunk (1 = top, ½ = second …)? | no |
+| **context hit@k** | Same question as recall, but asked about the k chunks that were actually handed to the LLM *after* reranking. Recall@k looks *before* the reranker, so only this metric can show whether the reranker helps or hurts. | no |
 | **citation precision** | Of the citations in the answer, what share point at a correct page? | no |
 | **citation coverage** | What share of factual sentences carry a citation at all? | no |
 | **faithfulness** | Of the statements in the answer, what share is supported by the retrieved passages? (RAGAS definition, LLM-as-judge) | yes |

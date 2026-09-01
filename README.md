@@ -128,6 +128,7 @@ the PDF page index (machine-checked to be on that page):
 ### Metrics
 - **recall@5 / @10** — was a correct page among the first k retrieved chunks? (±1 page: a chunk is cited by the page it starts on)
 - **MRR** — 1 / rank of the first correct chunk
+- **context hit@k** — recall measured on the k chunks actually handed to the LLM, *after* reranking (recall@k is measured before the reranker, so this is the only number the reranker can move)
 - **citation precision** — share of the answer's citations that point at a correct page
 - **citation coverage** — share of factual sentences that carry a citation
 - **faithfulness** — share of answer statements supported by the retrieved passages (RAGAS definition, LLM-as-judge)
