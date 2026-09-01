@@ -10,7 +10,13 @@ from pathlib import Path
 from docmind.config import get_settings
 from docmind.db import get_session
 from docmind.eval.golden import DEFAULT_GOLDEN, load_golden
-from docmind.eval.runner import NullLLM, markdown_summary, run_eval, write_report
+from docmind.eval.runner import (
+    EvalAborted,
+    NullLLM,
+    markdown_summary,
+    run_eval,
+    write_report,
+)
 from docmind.ingest.embedder import get_embedder
 from docmind.llm.backends import get_llm
 from docmind.rag import RagConfig
@@ -53,17 +59,23 @@ def main(argv: list[str] | None = None) -> int:
         f"-k{args.k}{'-smoke' if args.limit else ''}"
     )
 
-    with get_session() as session:
-        report = run_eval(
-            session,
-            items,
-            embedder=get_embedder(settings),
-            reranker=get_reranker(enabled=not args.no_rerank, model_name=settings.reranker_model),
-            llm=llm,
-            config=config,
-            judge=judge,
-            label=label,
-        )
+    try:
+        with get_session() as session:
+            report = run_eval(
+                session,
+                items,
+                embedder=get_embedder(settings),
+                reranker=get_reranker(
+                    enabled=not args.no_rerank, model_name=settings.reranker_model
+                ),
+                llm=llm,
+                config=config,
+                judge=judge,
+                label=label,
+            )
+    except EvalAborted as exc:
+        print(f"eval aborted: {exc}", file=sys.stderr)
+        return 2
     json_path, md_path = write_report(report, args.out)
     print(markdown_summary(report))
     print(f"written: {json_path}\n         {md_path}")

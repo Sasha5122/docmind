@@ -8,7 +8,14 @@ from sqlalchemy import delete, select, text
 
 from docmind.db import get_engine, get_session
 from docmind.eval.golden import GoldenItem, SourceRef, load_golden
-from docmind.eval.runner import markdown_summary, run_eval, summarise, write_report
+from docmind.eval.runner import (
+    EvalAborted,
+    QuestionResult,
+    markdown_summary,
+    run_eval,
+    summarise,
+    write_report,
+)
 from docmind.ingest.embedder import FakeEmbedder
 from docmind.ingest.pipeline import ingest_file
 from docmind.llm.backends import FakeLLM
@@ -99,3 +106,34 @@ def test_default_golden_file_loads_if_present() -> None:
     items = load_golden(path)
     assert len(items) >= 60
     assert {i.lang for i in items} >= {"de", "fr", "en"}
+
+
+def test_run_eval_aborts_after_consecutive_errors(monkeypatch) -> None:
+    """Five failures in a row = the backend is down; stop instead of scoring 96 blanks."""
+    import docmind.eval.runner as runner
+
+    def broken(session, item, *args, **kwargs):
+        return QuestionResult(
+            item.id, item.lang, item.category, item.question, "", "", [], [], [],
+            None, None, None, None, 0.0, False, error="ConnectError: ollama down",
+        )  # fmt: skip
+
+    monkeypatch.setattr(runner, "evaluate_item", broken)
+    items = [GoldenItem(f"q{i}", "de", "?", "", ()) for i in range(10)]
+    with pytest.raises(EvalAborted, match="5 questions in a row"):
+        run_eval(None, items, FakeEmbedder(), FakeReranker(), FakeLLM("x"), RagConfig(), None, "x")
+    # A single error must not abort (one broken question is allowed).
+    calls = {"n": 0}
+
+    def flaky(session, item, *args, **kwargs):
+        calls["n"] += 1
+        return broken(session, item) if calls["n"] % 2 else QuestionResult(
+            item.id, item.lang, item.category, item.question, "a", "", [], [], [],
+            None, None, None, None, 0.0, False,
+        )  # fmt: skip
+
+    monkeypatch.setattr(runner, "evaluate_item", flaky)
+    report = run_eval(
+        None, items, FakeEmbedder(), FakeReranker(), FakeLLM("x"), RagConfig(), None, "x"
+    )
+    assert report.summary["errors"] == 5

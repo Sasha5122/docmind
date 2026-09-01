@@ -93,6 +93,10 @@ class EvalReport:
 ABSTAIN_MARKERS = ("keine angaben", "aucune information", "could not find", "non trovo")
 
 
+class EvalAborted(RuntimeError):
+    """Raised when several questions in a row fail: the backend is down, not the questions."""
+
+
 class NullLLM:
     """Retrieval-only evaluation: answers nothing, so only recall@k / MRR are meaningful."""
 
@@ -273,12 +277,20 @@ def run_eval(
     label: str,
     extra_config: dict | None = None,
     document_ids: list[int] | None = None,
+    max_consecutive_errors: int = 5,
 ) -> EvalReport:
     started = time.perf_counter()
     results: list[QuestionResult] = []
+    streak = 0  # errors in a row; a long streak means Ollama/DB died, so stop early
     for i, item in enumerate(items, 1):
         qr = evaluate_item(session, item, embedder, reranker, llm, config, judge, document_ids)
         results.append(qr)
+        streak = streak + 1 if qr.error else 0
+        if max_consecutive_errors and streak >= max_consecutive_errors:
+            raise EvalAborted(
+                f"{streak} questions in a row failed (last: {qr.error}); "
+                "aborting instead of writing a junk report. Is the LLM backend / database up?"
+            )
         log.info(
             "%3d/%d %-22s r@5=%s cite=%s faith=%s corr=%s %.1fs",
             i,
