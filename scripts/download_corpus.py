@@ -52,6 +52,9 @@ CORPUS: list[tuple[str, str]] = [
         "finma-rs-2026-01-nature-risks-en.pdf",
         FINMA.format(lang="en") + "finma-rs-2026-01.pdf?sc_lang=en",
     ),
+    ("finma-rs-2025-01-verhaltenspflichten-de.pdf", FINMA.format(lang="de") + "finma-rs-2025-01.pdf?sc_lang=de"),
+    ("finma-rs-2025-01-verhaltenspflichten-fr.pdf", FINMA.format(lang="fr") + "finma-rs-2025-01.pdf?sc_lang=fr"),
+    ("finma-rs-2025-01-verhaltenspflichten-en.pdf", FINMA.format(lang="en") + "finma-rs-2025-01.pdf?sc_lang=en"),
     # --- insurers' general conditions (AVB / CGA)
     (
         "mobiliar-avb-hausrat-junge-de.pdf",

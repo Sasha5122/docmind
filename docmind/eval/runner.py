@@ -102,10 +102,18 @@ def evaluate_item(
     llm: LLM,
     config: RagConfig,
     judge: LLM | None,
+    document_ids: list[int] | None = None,
 ) -> QuestionResult:
     try:
         result = answer_question(
-            session, item.question, embedder, reranker, llm, config=config, lang=item.lang
+            session,
+            item.question,
+            embedder,
+            reranker,
+            llm,
+            config=config,
+            lang=item.lang,
+            document_ids=document_ids,
         )
     except Exception as exc:  # noqa: BLE001 - one broken question must not kill the run
         log.exception("question %s failed", item.id)
@@ -237,11 +245,12 @@ def run_eval(
     judge: LLM | None,
     label: str,
     extra_config: dict | None = None,
+    document_ids: list[int] | None = None,
 ) -> EvalReport:
     started = time.perf_counter()
     results: list[QuestionResult] = []
     for i, item in enumerate(items, 1):
-        qr = evaluate_item(session, item, embedder, reranker, llm, config, judge)
+        qr = evaluate_item(session, item, embedder, reranker, llm, config, judge, document_ids)
         results.append(qr)
         log.info(
             "%3d/%d %-22s r@5=%s cite=%s faith=%s corr=%s %.1fs",

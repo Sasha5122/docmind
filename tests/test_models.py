@@ -5,7 +5,7 @@ from docmind.models import EMBEDDING_DIM, Chunk, Document
 
 
 def test_both_tables_are_registered() -> None:
-    assert set(Base.metadata.tables) == {"documents", "chunks"}
+    assert set(Base.metadata.tables) == {"documents", "chunks", "audit_log"}
 
 
 def test_chunk_has_citation_fields_and_embedding() -> None:

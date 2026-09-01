@@ -11,7 +11,7 @@ from docmind.db import get_engine, get_session
 from docmind.ingest.embedder import FakeEmbedder
 from docmind.ingest.pipeline import ingest_file
 from docmind.llm.backends import FakeLLM
-from docmind.models import Document
+from docmind.models import AuditLog, Document
 from docmind.rag import RagConfig, answer_question
 from docmind.retrieval.reranker import FakeReranker
 from tests.test_parser import make_pdf
@@ -108,3 +108,39 @@ def test_api_ask_health_metrics(corpus) -> None:
 
         m = client.get("/metrics").json()
         assert m["requests_total"] == 1 and m["latency_p50_s"] is not None
+
+        # every answered question leaves an audit row
+        session, _ = corpus
+        row = session.get(AuditLog, body["audit_id"])
+        assert row is not None and row.username == "anonymous" and row.status == "ok"
+        assert row.cited_chunk_ids == [body["citations"][0]["chunk_id"]]
+        session.delete(row)
+        session.commit()
+
+
+def test_api_basic_auth(corpus, monkeypatch: pytest.MonkeyPatch) -> None:
+    from docmind.config import get_settings
+
+    monkeypatch.setenv("BASIC_AUTH_USER", "alice")
+    monkeypatch.setenv("BASIC_AUTH_PASSWORD", "s3cret")
+    get_settings.cache_clear()
+    try:
+        app = build_app(embedder=FakeEmbedder(), reranker=FakeReranker(), llm=FakeLLM("Ja [1]."))
+        with TestClient(app) as client:
+            assert (
+                client.post("/ask", json={"question": "Wie hoch ist der Selbstbehalt?"}).status_code
+                == 401
+            )
+            r = client.post(
+                "/ask",
+                json={"question": "Wie hoch ist der Selbstbehalt?"},
+                auth=("alice", "s3cret"),
+            )
+            assert r.status_code == 200
+            session, _ = corpus
+            row = session.get(AuditLog, r.json()["audit_id"])
+            assert row.username == "alice"
+            session.delete(row)
+            session.commit()
+    finally:
+        get_settings.cache_clear()

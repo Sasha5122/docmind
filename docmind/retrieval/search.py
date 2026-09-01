@@ -5,9 +5,9 @@ can merge them without caring which one produced a hit.
 
 - `vector_search`  : pgvector cosine distance between the query vector and `chunks.embedding`.
                      Works across languages because bge-m3 maps DE/FR/EN/IT into one space.
-- `keyword_search` : Postgres full-text search on the generated `chunks.tsv` column, ranked
-                     with `ts_rank_cd`. Exact terms (article numbers, product names, "Art. 12")
-                     are where this side wins over vectors.
+- `keyword_search` : Postgres full-text search on the generated `chunks.tsv` column, terms
+                     OR-ed, ranked with `ts_rank_cd`. Exact terms (article numbers, product
+                     names, "Art. 12") are where this side wins over vectors.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, Text, func, select
 from sqlalchemy.orm import Session
 
 from docmind.ingest.parser import detect_language
@@ -94,6 +94,20 @@ def ts_config_for(query: str, lang: str | None = None) -> str:
     return TS_CONFIGS.get(code or "", "simple")
 
 
+def _or_tsquery(config: str, query: str):
+    """Stemmed query terms joined with OR.
+
+    `plainto_tsquery` removes stop words and stems, but joins terms with AND, so a natural
+    question ("Wie lang ist die Kuendigungsfrist?") only matches chunks containing EVERY
+    word. Swapping `&` for `|` keeps stemming and lets `ts_rank_cd` reward chunks that
+    match more of the terms — a poor man's BM25.
+    """
+    anded = func.plainto_tsquery(config, query)  # e.g. 'lang' & 'kundigungsfrist'
+    # Parse the rewritten string with the 'simple' config: the terms are already stemmed,
+    # and running the German/French stemmer twice would mangle them.
+    return func.to_tsquery("simple", func.replace(func.cast(anded, Text), "&", "|"))
+
+
 def keyword_search(
     session: Session,
     query: str,
@@ -105,7 +119,7 @@ def keyword_search(
     if not query.strip():
         return []
     config = ts_config_for(query, lang)
-    tsquery = func.websearch_to_tsquery(config, query)
+    tsquery = _or_tsquery(config, query)
     rank = func.ts_rank_cd(Chunk.tsv, tsquery).label("rank")
     stmt = (
         _base_query(lang, document_ids)

@@ -7,16 +7,19 @@ Heavy objects (embedder, reranker, LLM client) are built once at startup and kep
 from __future__ import annotations
 
 import logging
+import secrets
 import statistics
 import time
 from collections import deque
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from docmind.api.audit import record_answer, record_error
 from docmind.config import get_settings
 from docmind.db import get_engine, get_session
 from docmind.ingest.embedder import Embedder, get_embedder
@@ -27,6 +30,7 @@ from docmind.retrieval.reranker import Reranker, get_reranker
 
 log = logging.getLogger(__name__)
 _LATENCY_WINDOW = 500  # last N request latencies kept in memory for /metrics
+_basic = HTTPBasic(auto_error=False)
 
 
 class AskRequest(BaseModel):
@@ -46,6 +50,7 @@ class CitationOut(BaseModel):
 
 
 class AskResponse(BaseModel):
+    audit_id: int | None
     answer: str
     lang: str
     citations: list[CitationOut]
@@ -92,6 +97,22 @@ def build_app(
         finally:
             session.close()
 
+    def current_user(credentials: HTTPBasicCredentials | None = Depends(_basic)) -> str:
+        """HTTP Basic auth when BASIC_AUTH_USER/PASSWORD are set; 'anonymous' otherwise."""
+        settings = get_settings()
+        if not settings.basic_auth_user:
+            return "anonymous"
+        if credentials is None or not (
+            secrets.compare_digest(credentials.username, settings.basic_auth_user)
+            and secrets.compare_digest(credentials.password, settings.basic_auth_password)
+        ):
+            raise HTTPException(
+                status_code=401,
+                detail="Unauthorized",
+                headers={"WWW-Authenticate": "Basic"},
+            )
+        return credentials.username
+
     @app.get("/health")
     def health() -> dict:
         try:
@@ -119,7 +140,12 @@ def build_app(
         }
 
     @app.post("/ask", response_model=AskResponse)
-    def ask(body: AskRequest, request: Request, session: Session = Depends(db)) -> AskResponse:
+    def ask(
+        body: AskRequest,
+        request: Request,
+        session: Session = Depends(db),
+        username: str = Depends(current_user),
+    ) -> AskResponse:
         state = request.app.state
         state.requests += 1
         try:
@@ -136,9 +162,12 @@ def build_app(
         except Exception as exc:
             state.errors += 1
             log.exception("ask failed")
+            record_error(session, username, body.question, f"{exc.__class__.__name__}: {exc}")
             raise HTTPException(status_code=502, detail=f"{exc.__class__.__name__}: {exc}") from exc
         state.latencies.append(result.timings.total_s)
+        audit_id = record_answer(session, username, result)
         return AskResponse(
+            audit_id=audit_id,
             answer=result.answer,
             lang=result.lang,
             citations=[

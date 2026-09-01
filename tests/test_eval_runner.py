@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
-from sqlalchemy import delete, text
+from sqlalchemy import delete, select, text
 
 from docmind.db import get_engine, get_session
 from docmind.eval.golden import GoldenItem, SourceRef, load_golden
@@ -36,7 +36,8 @@ def corpus():
         session.execute(delete(Document).where(Document.filename.like("test-eval-%")))
         session.commit()
         ingest_file(make_pdf(tmp / "test-eval.pdf", [PAGE]), session, FakeEmbedder())
-        yield session
+        doc_id = session.scalar(select(Document.id).where(Document.filename == "test-eval.pdf"))
+        yield session, [doc_id]
         session.execute(delete(Document).where(Document.filename.like("test-eval-%")))
         session.commit()
     for f in tmp.glob("*.pdf"):
@@ -45,6 +46,7 @@ def corpus():
 
 
 def test_run_eval_scores_and_writes_report(corpus, tmp_path: Path) -> None:
+    session, doc_ids = corpus
     items = [
         GoldenItem(
             "q1", "de", "Wie lang ist die Kuendigungsfrist?", "Drei Monate.",
@@ -57,7 +59,15 @@ def test_run_eval_scores_and_writes_report(corpus, tmp_path: Path) -> None:
         '{"statements": [{"text": "drei Monate", "supported": true}], "score": 1.0, "reason": "ok"}'
     )
     report = run_eval(
-        corpus, items, FakeEmbedder(), FakeReranker(), llm, RagConfig(k=3), judge, label="unit"
+        session,
+        items,
+        FakeEmbedder(),
+        FakeReranker(),
+        llm,
+        RagConfig(k=3),
+        judge,
+        label="unit",
+        document_ids=doc_ids,  # keep the real corpus out of a unit test
     )
     q1, q2 = report.results
     assert q1.recall_at_5 == 1.0 and q1.mrr > 0

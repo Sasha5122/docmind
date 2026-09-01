@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     reranker_enabled: bool = True
     reranker_model: str = "BAAI/bge-reranker-v2-m3"
 
+    # --- API access (HTTP Basic); leave both empty to disable auth (local dev only) ---
+    basic_auth_user: str = ""
+    basic_auth_password: str = ""
+
     # --- observability ---
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""
