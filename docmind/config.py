@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     local_embedding_model: str = "BAAI/bge-m3"
     azure_embedding_deployment: str = "text-embedding-3-large"
 
+    # --- retrieval ---
+    reranker_enabled: bool = True
+    reranker_model: str = "BAAI/bge-reranker-v2-m3"
+
     # --- observability ---
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""

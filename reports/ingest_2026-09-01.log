@@ -1,60 +1,58 @@
-2026-09-01 10:08:10,902 INFO sentence_transformers.base.model: No device provided, using cpu
-2026-09-01 10:08:11,163 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:17,521 INFO docmind.ingest.pipeline: skip axa-avb-haushalt-de.pdf (already ingested)
+2026-09-01 10:20:17,587 INFO docmind.ingest.pipeline: skip finma-rs-2023-01-oprisk-de.pdf (already ingested)
+2026-09-01 10:20:17,649 INFO docmind.ingest.pipeline: skip finma-rs-2023-01-oprisk-en.pdf (already ingested)
+2026-09-01 10:20:17,717 INFO docmind.ingest.pipeline: skip finma-rs-2023-01-oprisk-fr.pdf (already ingested)
+2026-09-01 10:20:17,767 INFO docmind.ingest.pipeline: skip finma-rs-2026-01-nature-risks-de.pdf (already ingested)
+2026-09-01 10:20:17,817 INFO docmind.ingest.pipeline: skip finma-rs-2026-01-nature-risks-en.pdf (already ingested)
+2026-09-01 10:20:17,865 INFO docmind.ingest.pipeline: skip finma-rs-2026-01-nature-risks-fr.pdf (already ingested)
+2026-09-01 10:20:27,505 INFO sentence_transformers.base.model: No device provided, using cuda:0
+2026-09-01 10:20:27,737 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-2026-09-01 10:08:11,179 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/modules.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:11,343 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:11,359 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config_sentence_transformers.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:11,368 INFO sentence_transformers.base.model: Loading SentenceTransformer model from BAAI/bge-m3.
-2026-09-01 10:08:11,513 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:11,528 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config_sentence_transformers.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:11,676 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:11,691 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/README.md "HTTP/1.1 200 OK"
-2026-09-01 10:08:11,854 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:11,870 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/modules.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:12,029 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:12,043 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/sentence_bert_config.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:12,202 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
-2026-09-01 10:08:12,359 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:12,376 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:12,567 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
-2026-09-01 10:08:12,720 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3 "HTTP/1.1 200 OK"
-2026-09-01 10:08:12,924 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/commits/main "HTTP/1.1 200 OK"
-Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|##########| 391/391 [00:00<00:00, 16743.30it/s]
-2026-09-01 10:08:13,127 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/discussions?p=0 "HTTP/1.1 200 OK"
-2026-09-01 10:08:13,181 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
-2026-09-01 10:08:13,333 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/commits/refs%2Fpr%2F130 "HTTP/1.1 200 OK"
-2026-09-01 10:08:13,335 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
-2026-09-01 10:08:13,485 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/refs%2Fpr%2F130/model.safetensors.index.json "HTTP/1.1 404 Not Found"
-2026-09-01 10:08:13,489 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
-2026-09-01 10:08:13,636 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/refs%2Fpr%2F130/model.safetensors "HTTP/1.1 302 Found"
-2026-09-01 10:08:13,642 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
-2026-09-01 10:08:13,793 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:13,809 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/tokenizer_config.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:13,969 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:13,983 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:14,134 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:14,150 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:14,302 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:14,318 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/tokenizer_config.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:14,480 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
-2026-09-01 10:08:14,631 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
-2026-09-01 10:08:17,186 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3 "HTTP/1.1 200 OK"
-2026-09-01 10:08:17,345 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
-2026-09-01 10:08:17,362 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
-2026-09-01 10:08:17,520 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/2_Normalize/config.json "HTTP/1.1 404 Not Found"
-2026-09-01 10:08:17,670 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3 "HTTP/1.1 200 OK"
-Batches:   0%|          | 0/8 [00:00<?, ?it/s]Batches:  12%|#2        | 1/8 [00:23<02:44, 23.44s/it]Batches:  25%|##5       | 2/8 [00:40<01:56, 19.46s/it]Batches:  38%|###7      | 3/8 [00:56<01:29, 17.94s/it]Batches:  50%|#####     | 4/8 [01:12<01:08, 17.20s/it]Batches:  62%|######2   | 5/8 [01:27<00:48, 16.31s/it]Batches:  75%|#######5  | 6/8 [01:39<00:29, 14.96s/it]Batches:  88%|########7 | 7/8 [01:50<00:13, 13.57s/it]Batches: 100%|##########| 8/8 [01:53<00:00, 10.38s/it]Batches: 100%|##########| 8/8 [01:53<00:00, 14.20s/it]
-2026-09-01 10:10:11,748 INFO docmind.ingest.pipeline: ingested axa-avb-haushalt-de.pdf: 39 pages, 123 chunks, 249 PII spans, 130.5s
-Batches:   0%|          | 0/2 [00:00<?, ?it/s]Batches:  50%|#####     | 1/2 [00:16<00:16, 16.00s/it]Batches: 100%|##########| 2/2 [00:34<00:00, 17.22s/it]Batches: 100%|##########| 2/2 [00:34<00:00, 17.04s/it]
-2026-09-01 10:10:47,745 INFO docmind.ingest.pipeline: ingested finma-rs-2023-01-oprisk-de.pdf: 16 pages, 32 chunks, 36 PII spans, 36.0s
-Batches:   0%|          | 0/2 [00:00<?, ?it/s]Batches:  50%|#####     | 1/2 [00:24<00:24, 24.32s/it]Batches: 100%|##########| 2/2 [00:29<00:00, 13.01s/it]Batches: 100%|##########| 2/2 [00:29<00:00, 14.70s/it]
-2026-09-01 10:11:18,586 INFO docmind.ingest.pipeline: ingested finma-rs-2023-01-oprisk-en.pdf: 15 pages, 25 chunks, 44 PII spans, 30.8s
-Batches:   0%|          | 0/2 [00:00<?, ?it/s]Batches:  50%|#####     | 1/2 [00:17<00:17, 17.15s/it]Batches: 100%|##########| 2/2 [00:30<00:00, 14.62s/it]Batches: 100%|##########| 2/2 [00:30<00:00, 15.00s/it]
-2026-09-01 10:11:50,584 INFO docmind.ingest.pipeline: ingested finma-rs-2023-01-oprisk-fr.pdf: 16 pages, 30 chunks, 24 PII spans, 32.0s
-Batches:   0%|          | 0/2 [00:00<?, ?it/s]Batches:  50%|#####     | 1/2 [00:15<00:15, 15.59s/it]Batches: 100%|##########| 2/2 [00:17<00:00,  7.49s/it]Batches: 100%|##########| 2/2 [00:17<00:00,  8.71s/it]
-2026-09-01 10:12:09,115 INFO docmind.ingest.pipeline: ingested finma-rs-2026-01-nature-risks-de.pdf: 10 pages, 19 chunks, 22 PII spans, 18.5s
-Batches:   0%|          | 0/1 [00:00<?, ?it/s]Batches: 100%|##########| 1/1 [00:25<00:00, 25.64s/it]Batches: 100%|##########| 1/1 [00:25<00:00, 25.64s/it]
-2026-09-01 10:12:35,847 INFO docmind.ingest.pipeline: ingested finma-rs-2026-01-nature-risks-en.pdf: 10 pages, 14 chunks, 56 PII spans, 26.7s
-Batches:   0%|          | 0/2 [00:00<?, ?it/s]Batches:  50%|#####     | 1/2 [00:16<00:16, 16.27s/it]Batches: 100%|##########| 2/2 [00:18<00:00,  8.06s/it]Batches: 100%|##########| 2/2 [00:18<00:00,  9.29s/it]
-2026-09-01 10:12:55,510 INFO docmind.ingest.pipeline: ingested finma-rs-2026-01-nature-risks-fr.pdf: 10 pages, 21 chunks, 24 PII spans, 19.7s
-Batches:   0%|          | 0/8 [00:00<?, ?it/s]Batches:  12%|#2        | 1/8 [00:14<01:44, 14.95s/it]Batches:  25%|##5       | 2/8 [00:28<01:25, 14.26s/it]
+2026-09-01 10:20:27,739 WARNING huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-09-01 10:20:27,755 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/modules.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:27,905 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:27,923 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:27,924 INFO sentence_transformers.base.model: Loading SentenceTransformer model from BAAI/bge-m3.
+2026-09-01 10:20:28,084 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:28,100 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:28,257 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:28,276 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/README.md "HTTP/1.1 200 OK"
+2026-09-01 10:20:28,430 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:28,445 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/modules.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:28,597 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:28,617 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:28,766 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-09-01 10:20:28,916 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:28,933 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:29,344 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-09-01 10:20:29,495 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3 "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|##########| 391/391 [00:00<00:00, 14856.58it/s]
+2026-09-01 10:20:29,686 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/commits/main "HTTP/1.1 200 OK"
+2026-09-01 10:20:29,862 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/discussions?p=0 "HTTP/1.1 200 OK"
+2026-09-01 10:20:29,889 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-09-01 10:20:30,037 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/commits/refs%2Fpr%2F130 "HTTP/1.1 200 OK"
+2026-09-01 10:20:30,043 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-09-01 10:20:30,187 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/refs%2Fpr%2F130/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-09-01 10:20:30,201 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-09-01 10:20:30,347 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/refs%2Fpr%2F130/model.safetensors "HTTP/1.1 302 Found"
+2026-09-01 10:20:30,361 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-09-01 10:20:30,513 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:30,539 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:30,689 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:30,708 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:30,861 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:30,879 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/config.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:31,029 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:31,050 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:31,205 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-09-01 10:20:31,360 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-09-01 10:20:34,462 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3 "HTTP/1.1 200 OK"
+2026-09-01 10:20:34,624 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-09-01 10:20:34,640 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-m3/5617a9f61b028005a4858fdac845db406aefb181/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-09-01 10:20:34,790 INFO httpx: HTTP Request: HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/2_Normalize/config.json "HTTP/1.1 404 Not Found"
+2026-09-01 10:20:34,947 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-m3 "HTTP/1.1 200 OK"
+Batches:   0%|          | 0/8 [00:00<?, ?it/s]Batches:  12%|#2        | 1/8 [00:02<00:15,  2.18s/it]Batches:  25%|##5       | 2/8 [00:03<00:10,  1.75s/it]Batches:  38%|###7      | 3/8 [00:05<00:09,  1.92s/it]Batches:  50%|#####     | 4/8 [00:07<00:06,  1.67s/it]Batches:  62%|######2   | 5/8 [00:08<00:04,  1.55s/it]Batches:  75%|#######5  | 6/8 [00:09<00:02,  1.42s/it]Batches:  88%|########7 | 7/8 [00:10<00:01,  1.27s/it]Batches: 100%|##########| 8/8 [00:10<00:00,  1.02it/s]Batches: 100%|##########| 8/8 [00:10<00:00,  1.36s/it]
+2026-09-01 10:20:49,761 INFO docmind.ingest.pipeline: ingested mobiliar-avb-hausrat-junge-de.pdf: 30 pages, 121 chunks, 176 PII spans, 31.9s
+Batches:   0%|          | 0/6 [00:00<?, ?it/s]Batches:  17%|#6        | 1/6 [00:01<00:07,  1.58s/it]Batches:  33%|###3      | 2/6 [00:03<00:06,  1.51s/it]Batches:  50%|#####     | 3/6 [00:04<00:04,  1.40s/it]Batches:  67%|######6   | 4/6 [00:05<00:02,  1.35s/it]Batches:  83%|########3 | 5/6 [00:06<00:01,  1.24s/it]Batches: 100%|##########| 6/6 [00:06<00:00,  1.06it/s]Batches: 100%|##########| 6/6 [00:06<00:00,  1.17s/it]
+2026-09-01 10:20:58,965 INFO docmind.ingest.pipeline: ingested mobiliar-avb-hausrat-minima-de.pdf: 24 pages, 89 chunks, 150 PII spans, 9.2s
+Batches:   0%|          | 0/42 [00:00<?, ?it/s]Batches:   2%|2         | 1/42 [00:02<01:46,  2.59s/it]
