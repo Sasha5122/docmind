@@ -40,7 +40,9 @@ class CrossEncoderReranker:
         if self._model is None:
             from sentence_transformers import CrossEncoder
 
-            self._model = CrossEncoder(self.model_name)
+            from docmind.ingest.embedder import _device_kwargs
+
+            self._model = CrossEncoder(self.model_name, **_device_kwargs())
         return self._model
 
     def rerank(

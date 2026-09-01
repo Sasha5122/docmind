@@ -52,9 +52,14 @@ CORPUS: list[tuple[str, str]] = [
         "finma-rs-2026-01-nature-risks-en.pdf",
         FINMA.format(lang="en") + "finma-rs-2026-01.pdf?sc_lang=en",
     ),
-    ("finma-rs-2025-01-verhaltenspflichten-de.pdf", FINMA.format(lang="de") + "finma-rs-2025-01.pdf?sc_lang=de"),
-    ("finma-rs-2025-01-verhaltenspflichten-fr.pdf", FINMA.format(lang="fr") + "finma-rs-2025-01.pdf?sc_lang=fr"),
-    ("finma-rs-2025-01-verhaltenspflichten-en.pdf", FINMA.format(lang="en") + "finma-rs-2025-01.pdf?sc_lang=en"),
+    (
+        "finma-rs-2025-01-verhaltenspflichten-de.pdf",
+        FINMA.format(lang="de") + "finma-rs-2025-01.pdf?sc_lang=de",
+    ),
+    (
+        "finma-rs-2025-01-verhaltenspflichten-fr.pdf",
+        FINMA.format(lang="fr") + "finma-rs-2025-01.pdf?sc_lang=fr",
+    ),
     # --- insurers' general conditions (AVB / CGA)
     (
         "mobiliar-avb-hausrat-junge-de.pdf",
@@ -69,6 +74,14 @@ CORPUS: list[tuple[str, str]] = [
         "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/haftung-recht/dokumente/avb-haushaltversicherung/avb-haushalt-versicherung.pdf?sc_lang=de",
     ),
     (
+        "zurich-gtc-household-en.pdf",
+        "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/haftung-recht/dokumente/avb-haushaltversicherung/avb-haushalt-versicherung.pdf?sc_lang=en",
+    ),
+    (
+        "zurich-cga-economia-domestica-it.pdf",
+        "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/haftung-recht/dokumente/avb-haushaltversicherung/avb-haushalt-versicherung.pdf?sc_lang=it",
+    ),
+    (
         "zurich-cga-menage-fr.pdf",
         "https://www.zurich.ch/-/media/zurich-site/content/privatkunden/haftung-recht/dokumente/avb-haushaltversicherung/avb-haushalt-versicherung.pdf?sc_lang=fr",
     ),
@@ -80,6 +93,10 @@ CORPUS: list[tuple[str, str]] = [
     (
         "swissre-annual-report-2024-financial-statements-en.pdf",
         "https://www.swissre.com/dam/jcr:2a7c343c-57fb-458d-b7a9-34455c8a30f6/2024-annual-report-financial-statements.pdf",
+    ),
+    (
+        "swissre-financial-condition-report-2024-en.pdf",
+        "https://www.swissre.com/dam/jcr:aa0c9079-9fb2-4471-a9af-ac45045989ab/2024-financial-condition-report.pdf",
     ),
     (
         "swisslife-annual-report-2024-en.pdf",

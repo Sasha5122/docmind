@@ -70,7 +70,7 @@ class LocalEmbedder:
         if self._model is None:
             from sentence_transformers import SentenceTransformer
 
-            self._model = SentenceTransformer(self.model_name)
+            self._model = SentenceTransformer(self.model_name, **_device_kwargs())
         return self._model
 
     def embed(self, texts: Sequence[str]) -> list[list[float]]:
@@ -120,6 +120,16 @@ class AzureEmbedder:
             ordered = sorted(response.data, key=lambda item: item.index)
             vectors.extend(_normalise(item.embedding) for item in ordered)
         return vectors
+
+
+def _device_kwargs() -> dict:
+    """GPU in half precision when available (bge-m3 then needs ~1.1 GB instead of 2.3 GB,
+    leaving room for the reranker and a local LLM on a 6 GB laptop GPU); CPU otherwise."""
+    import torch
+
+    if torch.cuda.is_available():
+        return {"device": "cuda", "model_kwargs": {"torch_dtype": torch.float16}}
+    return {"device": "cpu"}
 
 
 def get_embedder(settings: Settings | None = None) -> Embedder:
