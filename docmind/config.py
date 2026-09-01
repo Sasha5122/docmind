@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     azure_openai_api_key: str = ""
     azure_openai_endpoint: str = ""
     azure_openai_deployment: str = "gpt-4o-mini"
+    azure_openai_api_version: str = "2024-10-21"
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-5"
     ollama_base_url: str = "http://localhost:11434"
