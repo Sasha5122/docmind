@@ -58,6 +58,10 @@ class QuestionResult:
     citation_precision: float | None
     citation_coverage: float
     abstained: bool  # answered "not in the documents"
+    # Scored on the k chunks actually handed to the LLM (AFTER reranking), unlike
+    # recall@k / MRR which score the fused candidate list BEFORE reranking.
+    context_hit: float | None = None
+    context_mrr: float | None = None
     faithfulness: float | None = None
     correctness: float | None = None
     judge_detail: dict = field(default_factory=dict)
@@ -168,6 +172,8 @@ def evaluate_item(
         recall_at_5=recall_at_k(retrieved, item.sources, 5) if answerable else None,
         recall_at_10=recall_at_k(retrieved, item.sources, 10) if answerable else None,
         mrr=mrr(retrieved, item.sources) if answerable else None,
+        context_hit=recall_at_k(result.contexts, item.sources, config.k) if answerable else None,
+        context_mrr=mrr(result.contexts, item.sources) if answerable else None,
         citation_precision=citation_precision(result.citations, item.sources)
         if answerable
         else None,
@@ -218,6 +224,8 @@ def summarise(results: list[QuestionResult]) -> dict:
         "recall_at_5": mean([r.recall_at_5 for r in ok]),
         "recall_at_10": mean([r.recall_at_10 for r in ok]),
         "mrr": mean([r.mrr for r in ok]),
+        "context_hit": mean([r.context_hit for r in ok]),
+        "context_mrr": mean([r.context_mrr for r in ok]),
         "citation_precision": mean([r.citation_precision for r in ok]),
         "citation_coverage": mean([r.citation_coverage for r in ok]),
         "faithfulness": mean([r.faithfulness for r in ok]),
@@ -240,7 +248,14 @@ def _grouped(results: list[QuestionResult], key: str) -> dict:
     groups: dict[str, list[QuestionResult]] = {}
     for r in results:
         groups.setdefault(getattr(r, key), []).append(r)
-    keep = ("questions", "recall_at_5", "citation_precision", "faithfulness", "correctness")
+    keep = (
+        "questions",
+        "recall_at_5",
+        "context_hit",
+        "citation_precision",
+        "faithfulness",
+        "correctness",
+    )
     return {
         name: {k: v for k, v in summarise(group).items() if k in keep}
         for name, group in sorted(groups.items())
@@ -338,6 +353,9 @@ def markdown_summary(report: EvalReport) -> str:
         f"| recall@5 | {pct(s['recall_at_5'])} |",
         f"| recall@10 | {pct(s['recall_at_10'])} |",
         f"| MRR | {'–' if s['mrr'] is None else f'{s["mrr"]:.2f}'} |",
+        f"| context hit@k (correct page among the k chunks given to the LLM, after reranking) | "
+        f"{pct(s.get('context_hit'))} |",
+        f"| context MRR | {'–' if s.get('context_mrr') is None else f'{s["context_mrr"]:.2f}'} |",
         f"| citation precision | {pct(s['citation_precision'])} |",
         f"| citation coverage | {pct(s['citation_coverage'])} |",
         f"| faithfulness (judge) | {pct(s['faithfulness'])} |",

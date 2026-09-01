@@ -13,7 +13,9 @@ PY=${PY:-uv run python}
 $PY -m docmind.eval $LIMIT_ARG --label baseline
 
 # 2. Retrieval ablations: no LLM at all, so each run takes ~1 s per question.
-#    recall@5 here = "is a correct page among the k chunks that WOULD be handed to the LLM".
+#    recall@5 / MRR score the fused candidate list BEFORE reranking (so the reranker cannot
+#    change them); "ctx hit@k" scores the k chunks that WOULD be handed to the LLM, AFTER
+#    reranking -- that is the number the --no-rerank row is about.
 $PY -m docmind.eval $LIMIT_ARG --retrieval-only --label retrieval-hybrid
 $PY -m docmind.eval $LIMIT_ARG --retrieval-only --mode vector   --label retrieval-vector-only
 $PY -m docmind.eval $LIMIT_ARG --retrieval-only --mode keyword  --label retrieval-keyword-only

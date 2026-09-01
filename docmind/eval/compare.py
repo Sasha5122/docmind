@@ -15,6 +15,7 @@ COLUMNS = [
     ("recall_at_5", "recall@5", "pct"),
     ("recall_at_10", "recall@10", "pct"),
     ("mrr", "MRR", "num"),
+    ("context_hit", "ctx hit@k", "pct"),
     ("citation_precision", "cit. precision", "pct"),
     ("faithfulness", "faithfulness", "pct"),
     ("correctness", "correctness", "pct"),

@@ -5,6 +5,9 @@ Deterministic (retrieval + citations):
                        question, averaged). THE retrieval metric — if the page is not
                        retrieved, no LLM can answer correctly.
 - mrr                : 1 / rank of the first correct chunk (how high, not just whether).
+- context_hit        : recall_at_k applied to the k chunks handed to the LLM AFTER reranking
+                       (recall_at_k / mrr score the fused candidates BEFORE reranking, so
+                       only this one can show what the reranker does). Computed in runner.py.
 - citation_precision : share of the answer's citations that point at an expected page.
 - citation_coverage  : share of factual sentences that carry at least one citation.
 

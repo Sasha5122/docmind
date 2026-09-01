@@ -40,6 +40,7 @@ def results_section(r: dict) -> str:
     ]
     for key, label in [
         ("recall_at_5", "recall@5"),
+        ("context_hit", "context hit@k (after reranking)"),
         ("citation_precision", "citation precision"),
         ("faithfulness", "faithfulness (judge)"),
         ("correctness", "answer correctness (judge)"),

@@ -71,6 +71,7 @@ def test_run_eval_scores_and_writes_report(corpus, tmp_path: Path) -> None:
     )
     q1, q2 = report.results
     assert q1.recall_at_5 == 1.0 and q1.mrr > 0
+    assert q1.context_hit == 1.0 and q1.context_mrr > 0  # scored on the post-rerank chunks
     assert q1.citation_precision == 1.0 and q1.faithfulness == 1.0 and q1.correctness == 1.0
     # q2 is unanswerable but the fake LLM answers anyway -> counted as wrong
     assert q2.recall_at_5 is None and q2.correctness == 0.0 and not q2.abstained
@@ -82,6 +83,8 @@ def test_run_eval_scores_and_writes_report(corpus, tmp_path: Path) -> None:
     assert data["label"] == "unit" and len(data["results"]) == 2
     md = md_path.read_text(encoding="utf-8")
     assert "recall@5 | 100 %" in md and md == markdown_summary(report)
+    assert "context hit@k" in md and report.summary["context_hit"] == 1.0
+    assert "context_hit" in report.by_lang["de"]
 
 
 def test_summarise_empty() -> None:
