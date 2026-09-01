@@ -10,7 +10,7 @@ from pathlib import Path
 from docmind.config import get_settings
 from docmind.db import get_session
 from docmind.eval.golden import DEFAULT_GOLDEN, load_golden
-from docmind.eval.runner import markdown_summary, run_eval, write_report
+from docmind.eval.runner import NullLLM, markdown_summary, run_eval, write_report
 from docmind.ingest.embedder import get_embedder
 from docmind.llm.backends import get_llm
 from docmind.rag import RagConfig
@@ -26,6 +26,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--candidates", type=int, default=20, help="candidates per retriever")
     parser.add_argument("--no-rerank", action="store_true")
     parser.add_argument("--no-judge", action="store_true", help="skip LLM-judged metrics")
+    parser.add_argument(
+        "--retrieval-only",
+        action="store_true",
+        help="no LLM at all: measures recall@k / MRR only (fast retrieval ablations)",
+    )
     parser.add_argument("--label", default=None, help="name for the report files")
     parser.add_argument("--out", type=Path, default=Path("reports"))
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -40,11 +45,11 @@ def main(argv: list[str] | None = None) -> int:
 
     settings = get_settings()
     items = load_golden(args.golden, args.limit)
-    llm = get_llm(settings)
-    judge = None if args.no_judge else llm  # same backend judges by default
+    llm = NullLLM() if args.retrieval_only else get_llm(settings)
+    judge = None if (args.no_judge or args.retrieval_only) else llm  # same backend judges
     config = RagConfig(k=args.k, candidates=args.candidates, retrieval_mode=args.mode)
     label = args.label or (
-        f"{settings.llm_backend}-{args.mode}-{'norerank' if args.no_rerank else 'rerank'}"
+        f"{llm.name}-{args.mode}-{'norerank' if args.no_rerank else 'rerank'}"
         f"-k{args.k}{'-smoke' if args.limit else ''}"
     )
 

@@ -98,6 +98,19 @@ docker compose --profile api up --build        # optional: the API itself in a c
 
 ---
 
+## Corpus (public documents, fetched by `scripts/download_corpus.py`)
+
+| group | documents | languages | pages | chunks |
+|---|---|---|---|---|
+| FINMA circulars 2023/1 (operational risks), 2026/1 (nature-related risks), 2025/1 (conduct rules) | 8 | DE, FR, EN | 99 | 160 |
+| Insurers' general conditions: Zurich household (4 languages), Mobiliar (2), AXA (1) | 7 | DE, FR, EN, IT | 278 | 921 |
+| Annual reports: Swiss Life AR 2024, Swiss Re financial statements + financial condition report 2024 | 3 | EN | 737 | 1,091 |
+| **total** | **18** | 4 | **1,114** | **2,172** |
+
+Ingest of the whole corpus takes ~4 min on the laptop GPU (RTX 3050, fp16) and ~1.5 h on
+CPU; 413 PII spans were replaced (273 of them in the Swiss Life report — board members,
+auditors' signatures), 7.6 % of chunks carry a `<PERSON>` placeholder.
+
 ## Evaluation
 
 ### Golden set — `data/eval/golden.jsonl`

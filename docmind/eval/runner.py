@@ -89,6 +89,18 @@ class EvalReport:
 ABSTAIN_MARKERS = ("keine angaben", "aucune information", "could not find", "non trovo")
 
 
+class NullLLM:
+    """Retrieval-only evaluation: answers nothing, so only recall@k / MRR are meaningful."""
+
+    name = "none"
+    model = "retrieval-only"
+
+    def complete(self, system: str, user: str, max_tokens: int = 800, temperature: float = 0.0):
+        from docmind.llm.base import LLMResponse
+
+        return LLMResponse("", self.model, 0, 0, 0.0, 0.0)
+
+
 def _is_abstention(answer: str) -> bool:
     low = answer.lower()
     return any(marker in low for marker in ABSTAIN_MARKERS)
