@@ -13,3 +13,5 @@ mlruns/
 
 .hf/
 tests/_tmp_*/
+reports/*.log
+reports/limit20/

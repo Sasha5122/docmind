@@ -37,3 +37,25 @@ def test_main_sorts_by_time_and_writes(tmp_path: Path) -> None:
     assert main([str(a), str(b), "--out", str(out)]) == 0
     lines = out.read_text(encoding="utf-8").splitlines()
     assert lines[2].startswith("| earlier") and lines[3].startswith("| later")
+
+
+def test_retrieval_only_runs_blank_the_llm_columns() -> None:
+    from docmind.eval.compare import table
+
+    r = {
+        "label": "retrieval-hybrid",
+        "n": 3,
+        "created_at": "2026-09-01T10:00:00+00:00",
+        "config": {"llm_backend": "none", "llm_model": "retrieval-only"},
+        "summary": {
+            "recall_at_5": 0.8,
+            "correctness": 0.0,
+            "abstention_rate": 0.0,
+            "latency_p50_s": 0.7,
+        },  # fmt: skip
+    }
+    row = table([r]).splitlines()[-1]
+    cells = [c.strip() for c in row.strip("|").split("|")]
+    # recall is shown, correctness / abstain are blanked, latency is shown
+    assert "80 %" in cells and "0.70" in cells
+    assert cells.count("–") >= 4 and "0 %" not in cells

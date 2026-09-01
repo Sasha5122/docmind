@@ -36,13 +36,23 @@ def _fmt(value, kind: str) -> str:
     return f"{value:.2f}"
 
 
+# Columns that only mean something when a model wrote the answers. A retrieval-only run
+# (NullLLM) still produces numbers for them (0 % correctness on the unanswerable questions,
+# for instance) and printing those would mislead.
+LLM_ONLY = {"citation_precision", "faithfulness", "correctness", "abstention_rate"}
+
+
 def table(reports: list[dict]) -> str:
     head = "| run | n | LLM | " + " | ".join(label for _, label, _ in COLUMNS) + " |"
     sep = "|---|---|---|" + "---|" * len(COLUMNS)
     rows = [head, sep]
     for r in reports:
         s, c = r["summary"], r["config"]
-        cells = [_fmt(s.get(key), kind) for key, _, kind in COLUMNS]
+        retrieval_only = c.get("llm_backend") == "none"
+        cells = [
+            "–" if retrieval_only and key in LLM_ONLY else _fmt(s.get(key), kind)
+            for key, _, kind in COLUMNS
+        ]
         rows.append(
             f"| {r['label']} | {r['n']} | {c.get('llm_backend')}:{c.get('llm_model')} | "
             + " | ".join(cells)

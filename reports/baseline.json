@@ -1,0 +1,46 @@
+{
+  "created_at": "2026-09-01T14:21:15+00:00",
+  "label": "baseline",
+  "n": 96,
+  "config": {
+    "k": 5,
+    "candidates": 20,
+    "retrieval_mode": "hybrid",
+    "max_tokens": 800,
+    "llm_backend": "ollama",
+    "llm_model": "qwen2.5:7b",
+    "reranker": "CrossEncoderReranker",
+    "judge": "ollama:qwen2.5:7b",
+    "embedder": "BAAI/bge-m3",
+    "machine": "DESKTOP-F3N5QRF",
+    "wall_time_s": 6798.0,
+    "latency_outliers_excluded": [
+      "zurich-012"
+    ],
+    "latency_outlier_cap_s": 600.0
+  },
+  "summary": {
+    "questions": 96,
+    "errors": 0,
+    "recall_at_5": 0.8181818181818182,
+    "recall_at_10": 0.9204545454545454,
+    "mrr": 0.650712942673082,
+    "context_hit": 0.9431818181818182,
+    "context_mrr": 0.7984848484848485,
+    "citation_precision": 0.6005747126436781,
+    "citation_coverage": 0.3576388888888889,
+    "faithfulness": 0.9494318181818181,
+    "correctness": 0.8186813186813187,
+    "abstention_rate": 0.0625,
+    "latency_p50_s": 8.451,
+    "latency_p95_s": 14.665,
+    "latency_mean_s": 10.083,
+    "retrieval_mean_s": 1.053,
+    "rerank_mean_s": 0.794,
+    "llm_mean_s": 8.236,
+    "cost_usd_total": 0.0,
+    "cost_usd_per_1000": 0.0,
+    "tokens_in_mean": 2636,
+    "tokens_out_mean": 65
+  }
+}

@@ -184,8 +184,52 @@ markdown summary, and `reports/latest.json` (summary only, committed) for the CI
 CI compares `reports/latest.json` with `reports/baseline.json` and fails when
 faithfulness, correctness, recall@5 or citation precision drop by more than 5 points.
 
-### 2.5 Results
-*(filled in from the report files once the runs are complete — see README.)*
+### 2.5 Results (full run, 2026-09-01, local `qwen2.5:7b` on an RTX 3050)
+
+The headline numbers, in plain words (the full tables are in the README):
+
+| number | value | what it means |
+|---|---|---|
+| recall@5 | 82 % | for 82 of 100 questions the right page is among the first 5 candidates the two searches return |
+| context hit@k | 94 % | after the reranker sorts the 20 candidates, the right page is among the 5 chunks the model actually reads — the reranker lifts 12 points |
+| citation precision | 60 % | 6 of 10 citations point at a correct page |
+| citation coverage | 36 % | only about a third of factual sentences carry a citation — the model cites once per paragraph |
+| faithfulness | 95 % | almost nothing in the answers is invented |
+| correctness | 82 % | the judge agrees with the reference answer for 4 of 5 questions |
+| unanswerable | 5 of 8 declined | the other 3 got a made-up or hedged answer |
+| latency p50 / p95 | 8.5 s / 14.7 s | half the answers arrive within 8.5 s; 19 of 20 within 14.7 s. Retrieval + reranking = 1.8 s, the rest is the 7B model writing tokens |
+| cost | $0 | local GPU; the same tokens on Azure gpt-4o-mini would cost ≈ $0.43 per 1,000 questions |
+
+**The experiments** (same questions, one thing changed at a time):
+
+- *Vector-only* is almost as good as *hybrid* on this set (81 % vs 82 % recall@5); *keyword-only*
+  is clearly worse (70 %). On the 20-question smoke set hybrid had looked 20 points better —
+  small samples lie. Hybrid stays because cross-lingual questions need the vector side and
+  codes like "RS 23/1" need the keyword side.
+- *No reranker*: the 5 chunks the model reads contain the right page for 82 % instead of 94 %.
+  The reranker costs 0.8 s and is the single most valuable component.
+- *40 candidates* instead of 20: no gain after reranking, slower. *k = 3* instead of 5 chunks:
+  slightly fewer wrong citations, 3 points less correctness. Defaults stay at 20 / 5.
+
+**What went wrong on the way, and what was learned** (this is the part an interviewer will
+ask about):
+
+1. *The first abstention number was a lie.* The check for "not in the documents" looked for four
+   exact sentences; the 7B model paraphrases them. Reported 0 %, real 62 %. Fix: multilingual
+   patterns, and stored answers were re-scored without re-running the models. Lesson: validate
+   a metric by reading the raw answers before trusting it.
+2. *The laptop fell asleep during the run* — one question "took" 84 minutes. The latency
+   statistics now exclude anything above 10 minutes and write the excluded ids into the report;
+   a small script holds the machine awake during long runs.
+3. *Three of the sixteen retrieval misses are not misses*: the answer was found in the English
+   edition of a policy that the golden set only listed in German and French. The metric is
+   page-based, so it cannot know that. The fix is in the test data, not the system.
+4. *English annual reports are the weak spot* (66 % recall vs 86–100 % elsewhere): tables become
+   scrambled text, and the same figure appears on several pages. Layout-aware parsing is the
+   next real improvement.
+5. *Azure vs local* could not be measured — no key. The README says so and shows the command;
+   the retrieval half of the table is identical by construction because only the answering
+   model changes.
 
 ---
 
