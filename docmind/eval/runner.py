@@ -27,6 +27,7 @@ from docmind.eval.golden import GoldenItem
 from docmind.eval.metrics import (
     citation_coverage,
     citation_precision,
+    is_abstention,
     judge_correctness,
     judge_faithfulness,
     mean,
@@ -90,9 +91,6 @@ class EvalReport:
         return json.dumps(asdict(self), ensure_ascii=False, indent=2)
 
 
-ABSTAIN_MARKERS = ("keine angaben", "aucune information", "could not find", "non trovo")
-
-
 class EvalAborted(RuntimeError):
     """Raised when several questions in a row fail: the backend is down, not the questions."""
 
@@ -107,11 +105,6 @@ class NullLLM:
         from docmind.llm.base import LLMResponse
 
         return LLMResponse("", self.model, 0, 0, 0.0, 0.0)
-
-
-def _is_abstention(answer: str) -> bool:
-    low = answer.lower()
-    return any(marker in low for marker in ABSTAIN_MARKERS)
 
 
 def evaluate_item(
@@ -162,7 +155,7 @@ def evaluate_item(
     retrieved = [by_id[cid] for cid in result.retrieved_ids if cid in by_id]
 
     answerable = item.answerable
-    abstained = _is_abstention(result.answer)
+    abstained = is_abstention(result.answer)
     qr = QuestionResult(
         id=item.id,
         lang=item.lang,

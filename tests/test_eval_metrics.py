@@ -9,6 +9,7 @@ from docmind.eval.golden import GoldenItem, SourceRef, load_golden
 from docmind.eval.metrics import (
     citation_coverage,
     citation_precision,
+    is_abstention,
     judge_correctness,
     judge_faithfulness,
     mean,
@@ -90,3 +91,25 @@ def test_load_golden_validates(tmp_path: Path) -> None:
     path.write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
     with pytest.raises(ValueError, match="duplicate"):
         load_golden(path)
+
+
+def test_is_abstention_recognises_paraphrases_in_four_languages() -> None:
+    yes = [
+        "Dazu finde ich in den Dokumenten keine Angaben.",
+        "Die Anzahl der Mitarbeiter wird in den bereitgestellten Quellen nicht erwähnt.",
+        "Die angegebenen Quellen beziehen sich nicht auf Helvetia.",
+        "Les informations fournies ne contiennent pas de note de solvabilité.",
+        "Je ne trouve aucune information à ce sujet.",
+        "The provided sources do not contain information about Julius Baer.",
+        "None of the provided circulars specifically mention crypto custody. [1]",
+        "I could not find anything about this in the documents.",
+        "Non trovo informazioni al riguardo nei documenti.",
+    ]
+    no = [
+        "Die Kündigungsfrist beträgt drei Monate [1].",
+        "The deductible does not apply to glass breakage [2].",
+        "Le délai de résiliation est de trois mois [1].",
+        "The minimum guaranteed interest rate was 1.25% in 2024 [1].",
+    ]
+    assert all(is_abstention(a) for a in yes)
+    assert not any(is_abstention(a) for a in no)

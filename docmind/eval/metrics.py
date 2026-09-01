@@ -33,6 +33,42 @@ from docmind.retrieval.search import RetrievedChunk
 
 PAGE_TOLERANCE = 1
 
+# "I can't answer this from the documents" in the four corpus languages. The prompt asks for one
+# fixed sentence, but a 7B model paraphrases ("wird in den Quellen nicht erwähnt", "do not
+# contain information about"), so the check is a set of patterns, not an exact string.
+_ABSTAIN_PATTERNS = [
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        # de
+        r"keine (spezifische[nr]? |konkrete[nr]? |weitere[nr]? )?"
+        r"(angaben|informationen|information|hinweise|aussage)",
+        r"nicht (erwähnt|enthalten|angegeben|genannt|aufgeführt|ersichtlich|zu finden|möglich"
+        r"|hervor)",
+        r"beziehen sich nicht auf",
+        r"finde ich .{0,40}(keine|nicht)",
+        # fr
+        r"aucune information",
+        r"ne (contiennent|contient|mentionnent|mentionne|figurent?|précisent?|permettent|permet)"
+        r" pas",
+        r"pas d[’']information",
+        # en
+        r"could not find",
+        r"do(es)? not (contain|mention|provide|specify|include|state|indicate|address)",
+        r"no (specific )?information (about|on|regarding)",
+        r"not (mentioned|specified|provided|available|found|stated|addressed) in",
+        r"none of the (provided|given|retrieved)",
+        # it
+        r"non trovo",
+        r"non (contengono|contiene|menzionano|menziona|riportano|riporta)",
+        r"nessuna informazione",
+    )
+]
+
+
+def is_abstention(answer: str) -> bool:
+    """True when the answer says the documents do not cover the question."""
+    return any(pattern.search(answer) for pattern in _ABSTAIN_PATTERNS)
+
 
 def _matches(chunk_file: str, chunk_page: int, expected: Sequence[SourceRef]) -> bool:
     return any(

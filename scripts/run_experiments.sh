@@ -9,6 +9,12 @@ cd "$(dirname "$0")/.."
 LIMIT_ARG=${LIMIT:+--limit $LIMIT}
 PY=${PY:-uv run python}
 
+# On a Windows laptop the machine would go to sleep after 5 idle minutes and pause the run;
+# hold the "system required" flag until this script writes reports/experiments.md at the end.
+if command -v powershell.exe >/dev/null 2>&1; then
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/keep_awake.ps1     -WatchFile reports/experiments.md >/dev/null 2>&1 &
+fi
+
 # 1. Baseline: hybrid + reranker + LLM judge
 $PY -m docmind.eval $LIMIT_ARG --label baseline
 
