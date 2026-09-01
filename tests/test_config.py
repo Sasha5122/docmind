@@ -8,6 +8,7 @@ from docmind.config import Settings
 
 def test_defaults_point_at_local_docker_db(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("LLM_BACKEND", raising=False)  # CI exports it (=ollama)
     settings = Settings(_env_file=None)
     assert settings.llm_backend == "azure"
     assert settings.embedding_backend == "local"
