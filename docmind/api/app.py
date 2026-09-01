@@ -12,8 +12,10 @@ import statistics
 import time
 from collections import deque
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field
 from sqlalchemy import text
@@ -25,12 +27,14 @@ from docmind.db import get_engine, get_session
 from docmind.ingest.embedder import Embedder, get_embedder
 from docmind.llm.backends import get_llm
 from docmind.llm.base import LLM
+from docmind.observability import get_tracer
 from docmind.rag import RagConfig, answer_question
 from docmind.retrieval.reranker import Reranker, get_reranker
 
 log = logging.getLogger(__name__)
 _LATENCY_WINDOW = 500  # last N request latencies kept in memory for /metrics
 _basic = HTTPBasic(auto_error=False)
+_STATIC = Path(__file__).resolve().parent.parent.parent / "static"
 
 
 class AskRequest(BaseModel):
@@ -83,10 +87,12 @@ def build_app(
         app.state.requests = 0
         app.state.errors = 0
         app.state.started = time.time()
+        app.state.tracer = get_tracer()
         log.info(
             "DocMind ready: llm=%s embedder=%s", settings.llm_backend, settings.embedding_backend
         )
         yield
+        app.state.tracer.flush()
 
     app = FastAPI(title="DocMind", version="0.1.0", lifespan=lifespan)
 
@@ -113,8 +119,12 @@ def build_app(
             )
         return credentials.username
 
+    @app.get("/", include_in_schema=False)
+    def index() -> FileResponse:
+        return FileResponse(_STATIC / "index.html")
+
     @app.get("/health")
-    def health() -> dict:
+    def health(request: Request) -> dict:
         try:
             with get_engine().connect() as conn:
                 conn.execute(text("select 1"))
@@ -125,6 +135,7 @@ def build_app(
             "status": "ok" if database == "ok" else "degraded",
             "database": database,
             "llm_backend": get_settings().llm_backend,
+            "tracing": request.app.state.tracer.enabled,
         }
 
     @app.get("/metrics")
@@ -166,6 +177,7 @@ def build_app(
             raise HTTPException(status_code=502, detail=f"{exc.__class__.__name__}: {exc}") from exc
         state.latencies.append(result.timings.total_s)
         audit_id = record_answer(session, username, result)
+        state.tracer.record(result, username=username, audit_id=audit_id)
         return AskResponse(
             audit_id=audit_id,
             answer=result.answer,

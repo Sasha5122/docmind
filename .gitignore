@@ -5,5 +5,11 @@ __pycache__/
 data/raw/*
 !data/raw/.gitkeep
 reports/*.json
+!reports/baseline.json
+!reports/latest.json
+reports/ci/
 mlruns/
 .mlflow/
+
+.hf/
+tests/_tmp_*/

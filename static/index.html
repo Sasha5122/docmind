@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocMind</title>
+<style>
+  :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+  body { max-width: 860px; margin: 2rem auto; padding: 0 1rem; line-height: 1.45; }
+  h1 { font-size: 1.4rem; margin-bottom: .2rem; }
+  .muted { opacity: .7; font-size: .9rem; }
+  form { display: grid; gap: .6rem; margin: 1.2rem 0; }
+  textarea { width: 100%; min-height: 4rem; font: inherit; padding: .5rem; box-sizing: border-box; }
+  .row { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+  input, select, button { font: inherit; padding: .4rem .6rem; }
+  button { cursor: pointer; }
+  #answer { white-space: pre-wrap; padding: 1rem; border: 1px solid #8884; border-radius: 6px; }
+  .cite { margin: .6rem 0; padding: .6rem; border-left: 3px solid #4a90e2; background: #4a90e211; }
+  .cite b { font-family: ui-monospace, monospace; }
+  .cite p { margin: .3rem 0 0; font-size: .9rem; opacity: .85; }
+  #meta { font-size: .85rem; opacity: .75; margin-top: .6rem; }
+  .err { color: #c0392b; }
+</style>
+</head>
+<body>
+<h1>DocMind</h1>
+<div class="muted">Ask a question about the indexed regulatory documents in German, French, English or Italian.
+Every factual sentence carries a citation <b>[n]</b> that maps to a document and page below.</div>
+
+<form id="f">
+  <textarea id="q" placeholder="z.B. Wie hoch ist der Selbstbehalt bei Glasbruch in der Zurich Haushaltversicherung?" required></textarea>
+  <div class="row">
+    <label>Retrieval <select id="mode"><option>hybrid</option><option>vector</option><option>keyword</option></select></label>
+    <label>k <input id="k" type="number" min="1" max="20" value="5" style="width:4rem"></label>
+    <label>User <input id="user" placeholder="(if auth is on)" style="width:9rem"></label>
+    <label>Password <input id="pass" type="password" style="width:9rem"></label>
+    <button id="go" type="submit">Ask</button>
+  </div>
+</form>
+
+<div id="out" hidden>
+  <div id="answer"></div>
+  <div id="cites"></div>
+  <div id="meta"></div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("go").disabled = true; $("out").hidden = false;
+  $("answer").textContent = "Thinking…"; $("cites").innerHTML = ""; $("meta").textContent = "";
+  const headers = { "Content-Type": "application/json" };
+  if ($("user").value) headers["Authorization"] = "Basic " + btoa($("user").value + ":" + $("pass").value);
+  try {
+    const r = await fetch("/ask", { method: "POST", headers,
+      body: JSON.stringify({ question: $("q").value, retrieval_mode: $("mode").value, k: Number($("k").value) }) });
+    const body = await r.json();
+    if (!r.ok) throw new Error(body.detail || r.statusText);
+    $("answer").textContent = body.answer;
+    for (const c of body.citations) {
+      const div = document.createElement("div"); div.className = "cite";
+      div.innerHTML = `<b>[${c.n}]</b> ${c.filename}, page ${c.page}<p></p>`;
+      div.querySelector("p").textContent = c.text.slice(0, 600) + (c.text.length > 600 ? "…" : "");
+      $("cites").appendChild(div);
+    }
+    $("meta").textContent = `${body.backend}:${body.model} · ${body.latency_s}s total ` +
+      `(retrieval ${body.retrieval_s}s, rerank ${body.rerank_s}s, LLM ${body.llm_s}s) · ` +
+      `${body.input_tokens}/${body.output_tokens} tokens · $${body.cost_usd.toFixed(5)} · audit #${body.audit_id}`;
+  } catch (err) {
+    $("answer").innerHTML = `<span class="err">Error: ${err.message}</span>`;
+  } finally { $("go").disabled = false; }
+});
+</script>
+</body>
+</html>

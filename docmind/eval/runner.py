@@ -298,6 +298,12 @@ def write_report(report: EvalReport, out_dir: Path = Path("reports")) -> tuple[P
     md_path = out_dir / f"eval_{stamp}_{slug}.md"
     json_path.write_text(report.to_json(), encoding="utf-8")
     md_path.write_text(markdown_summary(report), encoding="utf-8")
+    # Small summary-only file for the CI regression gate (committed; the full report is not).
+    latest = {"created_at": report.created_at, "label": report.label, "n": report.n,
+              "config": report.config, "summary": report.summary}  # fmt: skip
+    (out_dir / "latest.json").write_text(
+        json.dumps(latest, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     return json_path, md_path
 
 

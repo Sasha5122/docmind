@@ -1,0 +1,64 @@
+# 20-question smoke evaluation against a cloud LLM. Needs repository secrets
+# (AZURE_OPENAI_API_KEY + AZURE_OPENAI_ENDPOINT, or ANTHROPIC_API_KEY) and ~15 minutes
+# (model downloads are cached between runs). Run on demand or weekly; the result must not
+# drop more than 5 points below reports/baseline.json.
+name: eval-smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend:
+        description: "azure | anthropic"
+        default: azure
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: docmind
+          POSTGRES_PASSWORD: docmind
+          POSTGRES_DB: docmind
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U docmind -d docmind"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://docmind:docmind@localhost:5432/docmind
+      LLM_BACKEND: ${{ github.event.inputs.backend || 'azure' }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      HF_HOME: ${{ github.workspace }}/.hf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .hf
+            data/raw
+          key: models-and-corpus-v1
+      - run: uv sync --frozen
+      - run: uv run alembic upgrade head
+      - name: Download public corpus
+        run: uv run python scripts/download_corpus.py
+      - name: Ingest (CPU, cached models)
+        run: uv run python -m docmind.ingest data/raw/
+      - name: Smoke eval (20 questions)
+        run: uv run python -m docmind.eval --limit 20 --label ci-smoke --out reports/ci
+      - name: Regression gate
+        run: |
+          latest=$(ls -t reports/ci/eval_*ci-smoke.json | head -1)
+          uv run python -m docmind.eval.gate reports/baseline.json "$latest" --max-drop 5
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report
+          path: reports/ci/

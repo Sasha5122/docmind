@@ -14,6 +14,7 @@ dependencies = [
     "httpx>=0.28.1",
     "it-core-news-sm",
     "langdetect>=1.0.9",
+    "langfuse>=2.60,<3",
     "openai>=3.6.0",
     "pgvector>=0.3",
     "presidio-analyzer>=2.2",

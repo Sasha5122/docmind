@@ -16,5 +16,66 @@ services:
       timeout: 3s
       retries: 10
 
+  # The API in a container: `docker compose --profile api up --build`
+  # (on the laptop, `uv run uvicorn docmind.api.app:app --reload` is faster to iterate with)
+  api:
+    profiles: ["api"]
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://docmind:docmind@db:5432/docmind
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      LANGFUSE_HOST: http://langfuse:3000
+    ports:
+      - "8000:8000"
+    volumes:
+      - hf-cache:/models
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Self-hosted Langfuse v2 (tracing UI): `docker compose --profile observability up -d`
+  # Keys are pre-created headlessly so no click-through is needed; put the same values in .env.
+  langfuse-db:
+    profiles: ["observability"]
+    image: postgres:16
+    environment:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: langfuse
+      POSTGRES_DB: langfuse
+    volumes:
+      - langfusedata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse -d langfuse"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  langfuse:
+    profiles: ["observability"]
+    image: langfuse/langfuse:2
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: change-me-nextauth-secret-for-local-use-only
+      SALT: change-me-salt-for-local-use-only
+      TELEMETRY_ENABLED: "false"
+      LANGFUSE_INIT_ORG_ID: docmind
+      LANGFUSE_INIT_ORG_NAME: DocMind
+      LANGFUSE_INIT_PROJECT_ID: docmind-local
+      LANGFUSE_INIT_PROJECT_NAME: docmind-local
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: pk-lf-docmind-local
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: sk-lf-docmind-local
+      LANGFUSE_INIT_USER_EMAIL: admin@docmind.local
+      LANGFUSE_INIT_USER_NAME: admin
+      LANGFUSE_INIT_USER_PASSWORD: docmind-admin-1
+
 volumes:
   pgdata:
+  hf-cache:
+  langfusedata:
