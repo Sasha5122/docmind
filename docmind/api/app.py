@@ -18,7 +18,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field
-from sqlalchemy import text
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from docmind.api.audit import record_answer, record_error
@@ -27,6 +27,7 @@ from docmind.db import get_engine, get_session
 from docmind.ingest.embedder import Embedder, get_embedder
 from docmind.llm.backends import get_llm
 from docmind.llm.base import LLM
+from docmind.models import Chunk, Document
 from docmind.observability import get_tracer
 from docmind.rag import RagConfig, answer_question
 from docmind.retrieval.reranker import Reranker, get_reranker
@@ -149,6 +150,32 @@ def build_app(
             "latency_p95_s": _percentile(lat, 95),
             "latency_mean_s": round(statistics.fmean(lat), 3) if lat else None,
         }
+
+    @app.get("/documents")
+    def documents(session: Session = Depends(db)) -> list[dict]:
+        """The indexed library: one row per PDF with its chunk count (feeds the web UI sidebar)."""
+        rows = session.execute(
+            select(
+                Document.id,
+                Document.filename,
+                Document.lang,
+                Document.page_count,
+                func.count(Chunk.id).label("chunks"),
+            )
+            .join(Chunk, Chunk.document_id == Document.id, isouter=True)
+            .group_by(Document.id)
+            .order_by(Document.filename)
+        ).all()
+        return [
+            {
+                "id": r.id,
+                "filename": r.filename,
+                "lang": r.lang,
+                "page_count": r.page_count,
+                "chunks": r.chunks,
+            }
+            for r in rows
+        ]
 
     @app.post("/ask", response_model=AskResponse)
     def ask(

@@ -35,14 +35,14 @@ def corpus():
     tmp = Path(__file__).parent / "_tmp_rag"
     tmp.mkdir(exist_ok=True)
     with get_session() as session:
-        session.execute(delete(Document).where(Document.filename.like("test-rag-%")))
+        session.execute(delete(Document).where(Document.filename.like("test-rag%")))
         session.commit()
         report = ingest_file(make_pdf(tmp / "test-rag.pdf", [PAGE]), session, FakeEmbedder())
         assert report.status == "ingested"
         doc_id = session.scalar(select(Document.id).where(Document.filename == "test-rag.pdf"))
         # Restrict every query to the test document so the real corpus cannot interfere.
         yield session, [doc_id]
-        session.execute(delete(Document).where(Document.filename.like("test-rag-%")))
+        session.execute(delete(Document).where(Document.filename.like("test-rag%")))
         session.commit()
     for f in tmp.glob("*.pdf"):
         f.unlink()
@@ -144,3 +144,18 @@ def test_api_basic_auth(corpus, monkeypatch: pytest.MonkeyPatch) -> None:
             session.commit()
     finally:
         get_settings.cache_clear()
+
+
+def test_api_documents_lists_library(corpus) -> None:
+    """GET /documents returns one row per PDF with a chunk count (feeds the UI sidebar)."""
+    _, doc_ids = corpus
+    app = build_app(embedder=FakeEmbedder(), reranker=FakeReranker(), llm=FakeLLM("Ja [1]."))
+    with TestClient(app) as client:
+        rows = client.get("/documents").json()
+    ours = [r for r in rows if r["id"] in doc_ids]
+    assert len(ours) == 1
+    row = ours[0]
+    assert row["filename"] == "test-rag.pdf"
+    assert row["page_count"] >= 1
+    assert row["chunks"] >= 1
+    assert set(row) == {"id", "filename", "lang", "page_count", "chunks"}

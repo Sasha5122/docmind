@@ -247,6 +247,34 @@ ask about):
 
 ---
 
+### The web interface (added 2026-09-02)
+
+Open http://127.0.0.1:8000/ while the API is running and you get a chat page
+(`static/index.html` — one HTML file, no build step, served by FastAPI itself).
+
+What it shows, and where each piece comes from:
+
+- **Left sidebar — the library.** Calls the new `GET /documents` endpoint, which
+  counts chunks per PDF in the database. So the "18 PDFs / 3'194 chunks" line is
+  live data, not a hard-coded label.
+- **Status dot.** Calls `GET /health` — green means the database answered.
+- **Chat.** Your question goes to the same `POST /ask` endpoint the eval harness
+  uses; nothing is special-cased for the UI.
+- **Citation chips.** The model writes plain `[1]` marks into its answer; the page
+  replaces each one with a red clickable chip. Clicking scrolls to the matching
+  source card, which shows the PDF filename, the page number, and the exact text
+  passage the model was given. Click a card to expand the full passage.
+- **The timing bar.** Black = retrieval, grey = rerank, red = LLM — the same three
+  numbers the eval report tracks, so you can *see* that almost all waiting time is
+  the local model writing (expect ~8–15 s warm, longer on the first question while
+  Ollama loads the model).
+- **Trying it without typing:** the four sample chips on the empty screen are real
+  golden-set-style questions in DE/EN/FR.
+
+Design note: the look is deliberately Swiss International Style (paper background,
+ink sidebar, one red accent) — a nod to the FINMA/insurance domain, and distinctive
+in a portfolio screenshot or demo video.
+
 ## 4. Tech stack — and why each piece
 
 | piece | what it is | why this one |
