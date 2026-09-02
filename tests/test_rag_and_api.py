@@ -159,3 +159,20 @@ def test_api_documents_lists_library(corpus) -> None:
     assert row["page_count"] >= 1
     assert row["chunks"] >= 1
     assert set(row) == {"id", "filename", "lang", "page_count", "chunks"}
+
+
+def test_api_audit_lists_history(corpus) -> None:
+    """GET /audit returns the most recent Q&A rows, newest first."""
+    app = build_app(embedder=FakeEmbedder(), reranker=FakeReranker(), llm=FakeLLM("Ja [1]."))
+    with TestClient(app) as client:
+        r = client.post("/ask", json={"question": "Wie hoch ist die Selbstbeteiligung?"})
+        audit_id = r.json()["audit_id"]
+        rows = client.get("/audit", params={"limit": 5}).json()
+    assert rows and rows[0]["id"] == audit_id
+    assert rows[0]["status"] == "ok"
+    assert "Selbstbeteiligung" in rows[0]["question"]
+    session, _ = corpus
+    row = session.get(AuditLog, audit_id)
+    assert row is not None
+    session.delete(row)
+    session.commit()

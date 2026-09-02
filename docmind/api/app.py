@@ -27,7 +27,7 @@ from docmind.db import get_engine, get_session
 from docmind.ingest.embedder import Embedder, get_embedder
 from docmind.llm.backends import get_llm
 from docmind.llm.base import LLM
-from docmind.models import Chunk, Document
+from docmind.models import AuditLog, Chunk, Document
 from docmind.observability import get_tracer
 from docmind.rag import RagConfig, answer_question
 from docmind.retrieval.reranker import Reranker, get_reranker
@@ -173,6 +173,36 @@ def build_app(
                 "lang": r.lang,
                 "page_count": r.page_count,
                 "chunks": r.chunks,
+            }
+            for r in rows
+        ]
+
+    @app.get("/audit")
+    def audit(
+        limit: int = 20,
+        session: Session = Depends(db),
+        username: str = Depends(current_user),
+    ) -> list[dict]:
+        """The compliance trail, newest first (feeds the UI history drawer)."""
+        limit = max(1, min(limit, 100))
+        rows = (
+            session.execute(select(AuditLog).order_by(AuditLog.id.desc()).limit(limit))
+            .scalars()
+            .all()
+        )
+        return [
+            {
+                "id": r.id,
+                "created_at": r.created_at.isoformat(),
+                "username": r.username,
+                "question": r.question,
+                "answer": r.answer,
+                "lang": r.lang,
+                "backend": r.backend,
+                "model": r.model,
+                "status": r.status,
+                "latency_s": r.latency_s,
+                "cost_usd": float(r.cost_usd) if r.cost_usd is not None else None,
             }
             for r in rows
         ]

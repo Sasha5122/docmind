@@ -268,6 +268,10 @@ What it shows, and where each piece comes from:
   numbers the eval report tracks, so you can *see* that almost all waiting time is
   the local model writing (expect ~8–15 s warm, longer on the first question while
   Ollama loads the model).
+- **Audit history button (sidebar).** Opens a drawer listing the most recent
+  entries of the `audit_log` table via `GET /audit` — who asked what, when, the
+  answer, latency and status. Click an entry to expand the full answer. This is
+  the compliance trail made visible: an auditor does not need database access.
 - **Trying it without typing:** the four sample chips on the empty screen are real
   golden-set-style questions in DE/EN/FR.
 
